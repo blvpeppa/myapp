@@ -1,15 +1,16 @@
-const express = require('express');
-  const app = express();
-  const port = process.env.port || 6000
-  app.get('/',(req,res) => {
-res.send("hello world");
-  });
-  try {
-  app.listen(port,()=>{
-    console.log(`server running on port ${port}` );
-  });
-}
-catch (error) {
-    console.log("port in use:" + port);
-}
-throw(error);
+const express = require('express')
+const db = require('./db')
+const app = express()
+const port = 3400
+
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
+
+  app.get('/users', async(req, res) => {
+    const [rows] = await db.query('SELECT * from app')
+    res.send(rows)
+  })
+  app.listen(port, () => {
+    console.log(`MY app running on port ${port}`)
+  })
