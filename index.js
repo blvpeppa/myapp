@@ -1,51 +1,63 @@
-const express = require('express');
-const db = require('./db');
-const app = express();
-const port = 3400;
-
-// Middleware to parse incoming JSON requests
+const express = require('express')
+const db = require('./db')
+const app = express()
 app.use(express.json());
-
+const  port = 3200
+const bodyParser = require('body-parser')
+//select 
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
-
-// GET Route to fetch all users
 app.get('/users', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM app');
-    res.json(rows); // Return the result as JSON
+    const [rows] = await db.query('SELECT * FROM app')
+    res.send(rows)
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Error retrieving users from the database');
+    console.error(err)
+    res.status(500).send('Error retrieving users from the database')
   }
-});
-
-// POST Route to add a new user
-app.post('/users', async (req, res) => {
-  const { teacher, student } = req.body; // Get data from the request body
-  
-  if (!teacher || !student) {
-    return res.status(400).send('Teacher and student are required');
+}) 
+//insert
+app.post('/users',async (req,res) => {
+  const {teachers,students} = req.body 
+  if(!teachers||!students) {
+    return res.status(400).send("bad request")
   }
+    const [insert] = await db.query('INSERT INTO app (teachers,students) values(?,?)',[teachers,students]);
+    console.res.status(201).send({ message: 'User created successfully'})
 
-  try {
-    // Insert the new user into the database
-    const [result] = await db.query('INSERT INTO app (teacher, student) VALUES (?, ?)', [teacher, student]);
-
-    // Respond with the inserted data or success message
-    res.status(201).json({
-      message: 'User added successfully',
-      data: { teacher, student },
-      id: result.insertId // Assuming the result contains the insertId
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error adding user to the database');
+if(!insert) { 
+    res.status(500).send('Error creating user in the database')
   }
-});
+})
+//update
+app.put('/users/ :id', async (req, res) => {
+  const [teachers,students] = req.body
+  const id = req.params.id 
+  const update = await db.query('UPDATE app set teachers = ?,students = ? where id = ?',[teachers,students,id]);
+  res.status(201).send({message: update})
+})
+//delete
+app.delete('/users/ :id' ,async () => {
+  try { 
+  //const {teachers,students} = req.body
+  const id =req.params.id
+  if(!id) {
+    return res.status(404).send({
+      message : 'invaid id',
+      success:'failed'
+  })
+  }
+   await db.query('DELETE FROM `app` WHERE id = ?',[id])
+     return res.status(200).send({success: true,
+      message : 'data deleted'})
 
-// Start the server
+    }
+  catch(err) {
+    console.error(err)
+ res.status(404).send({message : 'No data deleted'})
+   }
+})
 app.listen(port, () => {
   console.log(`My app is running on port ${port}`);
 });
