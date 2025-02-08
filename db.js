@@ -1,5 +1,4 @@
 const mysql = require('mysql2');
-const index = require('./index.js');
 const connection = mysql.createConnection({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
@@ -19,9 +18,4 @@ connection.connect((err) => {
     }
 });
 const db = connection.promise();
-module.exports = {
-    db /*   rows,
-    insert,
-    update,
-    clear*/
-};
+module.exports = db;
