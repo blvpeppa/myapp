@@ -16,7 +16,7 @@ app.get('/users', async (req, res) => {
     console.error(err)
     res.status(500).send('Error retrieving users from the database')
   }
-}) 
+})
 //insert 
  
 app.post('/users',async (req,res) => {
